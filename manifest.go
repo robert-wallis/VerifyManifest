@@ -19,8 +19,7 @@ func (m *Manifest) Load(dirName, manifestName string) error {
 	defer file.Close()
 	dec := json.NewDecoder(file)
 	manifest := map[string]Sum{}
-	err = dec.Decode(&manifest)
-	if err != nil {
+	if err = dec.Decode(&manifest); err != nil {
 		return fmt.Errorf("Couldn't understand manifest file format %v: %v", filename, err)
 	}
 	return nil
@@ -35,8 +34,7 @@ func (m *Manifest) Save(dirName string, manifestName string) error {
 	defer file.Close()
 	enc := json.NewEncoder(file)
 	enc.SetIndent("", "\t")
-	err = enc.Encode(m)
-	if err != nil {
+	if err = enc.Encode(m); err != nil {
 		return err
 	}
 	return nil
