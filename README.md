@@ -8,7 +8,7 @@ This is helpful to see if the contents of a file have changed since the last tim
 # Installation
 
 Download to your `PATH`
-* [VerifyManifest.exe v0.1](https://github.com/robert-wallis/VerifyManifest/archive/v0.1/VerifyManifest.exe)
+* [VerifyManifest.exe v0.1](https://github.com/robert-wallis/VerifyManifest/releases/download/v0.1/VerifyManifest.exe)
 
 ### Install from Source
 ```
