@@ -64,14 +64,12 @@ func Test_hashFolder_BadManifest(t *testing.T) {
 	// GIVEN the test folder
 	dirName := "test_data"
 	manifestFile := "bad_manifests/bad_b.json"
-	infoBuf := make([]byte, 1000000)
-	infoBuffer := bytes.NewBuffer(infoBuf)
-	errorBuf := make([]byte, 1000000)
-	errorBuffer := bytes.NewBuffer(errorBuf)
+	var infoBuffer bytes.Buffer
+	var errorBuffer bytes.Buffer
 
 	// WHEN the folder is hashed
-	infoLog := log.New(infoBuffer, "", 0)
-	errorLog := log.New(errorBuffer, "", 0)
+	infoLog := log.New(&infoBuffer, "", 0)
+	errorLog := log.New(&errorBuffer, "", 0)
 	err := hashFolder(dirName, manifestFile, infoLog, errorLog)
 	if err == nil {
 		t.Error("Should have returned a failure.")
@@ -88,14 +86,12 @@ func Test_hashFolder_DirError(t *testing.T) {
 	// GIVEN a missing folder
 	dirName := "noexist"
 	manifestName := "manifest.json"
-	infoBuf := make([]byte, 1000000)
-	infoBuffer := bytes.NewBuffer(infoBuf)
-	errorBuf := make([]byte, 1000000)
-	errorBuffer := bytes.NewBuffer(errorBuf)
+	var infoBuffer bytes.Buffer
+	var errorBuffer bytes.Buffer
 
 	// WHEN the folder is hashed
-	infoLog := log.New(infoBuffer, "", 0)
-	errorLog := log.New(errorBuffer, "", 0)
+	infoLog := log.New(&infoBuffer, "", 0)
+	errorLog := log.New(&errorBuffer, "", 0)
 	err := hashFolder(dirName, manifestName, infoLog, errorLog)
 
 	// THEN there should be an error log that the folder didn't exist
@@ -108,15 +104,13 @@ func Test_hashFolder_FileError(t *testing.T) {
 	// GIVEN a missing file
 	dirName := "test_data"
 	manifestName := "noexist"
-	infoBuf := make([]byte, 1000000)
-	infoBuffer := bytes.NewBuffer(infoBuf)
-	errorBuf := make([]byte, 1000000)
-	errorBuffer := bytes.NewBuffer(errorBuf)
+	var infoBuffer bytes.Buffer
+	var errorBuffer bytes.Buffer
 	defer os.Remove(path.Join(dirName, manifestName))
 
 	// WHEN the folder is hashed
-	infoLog := log.New(infoBuffer, "", 0)
-	errorLog := log.New(errorBuffer, "", 0)
+	infoLog := log.New(&infoBuffer, "", 0)
+	errorLog := log.New(&errorBuffer, "", 0)
 	err := hashFolder(dirName, manifestName, infoLog, errorLog)
 
 	// THEN there should be not be an error that the manifest didn't exist
@@ -141,14 +135,12 @@ func Test_hashFolder_FileSaveError(t *testing.T) {
 	// GIVEN a missing file
 	dirName := "test_data"
 	manifestName := "."
-	infoBuf := make([]byte, 1000000)
-	infoBuffer := bytes.NewBuffer(infoBuf)
-	errorBuf := make([]byte, 1000000)
-	errorBuffer := bytes.NewBuffer(errorBuf)
+	var infoBuffer bytes.Buffer
+	var errorBuffer bytes.Buffer
 
 	// WHEN the folder is hashed
-	infoLog := log.New(infoBuffer, "", 0)
-	errorLog := log.New(errorBuffer, "", 0)
+	infoLog := log.New(&infoBuffer, "", 0)
+	errorLog := log.New(&errorBuffer, "", 0)
 	err := hashFolder(dirName, manifestName, infoLog, errorLog)
 
 	// THEN there should be not be an error that the manifest didn't exist
