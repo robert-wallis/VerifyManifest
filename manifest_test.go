@@ -19,10 +19,15 @@ func Test_Manifest_Load(t *testing.T) {
 	}
 
 	// THEN it should contain the "a.txt" and "b.txt" files
+	count := 0
 	for k := range manifest {
 		if k != "a.txt" && k != "b.txt" {
 			t.Error("Unexpected file in test folder", k)
 		}
+		count ++
+	}
+	if count == 0 {
+		t.Errorf("Should have been 2 files but were %v", count)
 	}
 }
 
