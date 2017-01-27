@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
+	"log"
 	"path"
 )
 
@@ -14,12 +14,12 @@ type fileNameSum struct {
 
 func streamHashes(dirName string, files chan string, result chan *fileNameSum) error {
 	defer close(result)
-	for f := range files {
-		fileName := path.Join(dirName, f)
+	for fileName := range files {
+		fullFileName := path.Join(dirName, fileName)
 		fs := &fileNameSum{
-			FileName: f,
+			FileName: fileName,
 		}
-		err := fs.Sum.Calculate(fileName)
+		err := fs.Sum.Calculate(fullFileName)
 		if err != nil {
 			return err
 		}
@@ -28,17 +28,16 @@ func streamHashes(dirName string, files chan string, result chan *fileNameSum) e
 	return nil
 }
 
-func hashFolder(dirname, manifestFile string) error {
-	files, err := ioutil.ReadDir(dirname)
+func hashFolder(dirName, manifestFile string, infoLog, errorLog *log.Logger) error {
+	files, err := ioutil.ReadDir(dirName)
 	if err != nil {
 		return err
 	}
 
 	oldManifest := Manifest{}
-	err = oldManifest.Load(dirname, manifestFile)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %v\n", err)
-		fmt.Println("Continuing.")
+	if err := oldManifest.Load(dirName, manifestFile); err != nil {
+		infoLog.Println("Warning:", err)
+		infoLog.Println("Continuing.")
 	}
 	newManifest := Manifest{}
 
@@ -46,9 +45,8 @@ func hashFolder(dirname, manifestFile string) error {
 	filtered := make(chan string)
 	go filterFiles(files, manifestFile, filtered)
 	go func() {
-		err := streamHashes(dirname, filtered, fileNameSums)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
+		if err := streamHashes(dirName, filtered, fileNameSums); err != nil {
+			errorLog.Println(err)
 		}
 	}()
 
@@ -59,20 +57,19 @@ func hashFolder(dirname, manifestFile string) error {
 			if ok {
 				if err := old.Verify(f.Sum); err != nil {
 					checkFailure = true
-					fmt.Fprintf(os.Stderr, "Error %v: %v\n", f.FileName, err)
+					errorLog.Printf("Error %v: %v\n", f.FileName, err)
 				}
 			}
 		}
 		newManifest[f.FileName] = f.Sum
-		fmt.Printf("%v\tmd5:%v\tsha1:%v\n", f.FileName, f.Sum.MD5, f.Sum.SHA1)
+		infoLog.Printf("%v\tmd5:%v\tsha1:%v\n", f.FileName, f.Sum.MD5, f.Sum.SHA1)
 	}
 
 	if !checkFailure {
-		err = newManifest.Save(dirname, manifestFile)
-		if err != nil {
+		if err := newManifest.Save(dirName, manifestFile); err != nil {
 			return fmt.Errorf("Error saving manifest %v", err)
 		}
-		fmt.Printf("Saved manifest to %v\n", path.Join(dirname, manifestFile))
+		infoLog.Printf("Saved manifest to %v\n", path.Join(dirName, manifestFile))
 	} else {
 		return fmt.Errorf("Some hashes failed, manifest not updated. %v", checkFailure)
 	}

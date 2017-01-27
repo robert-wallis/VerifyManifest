@@ -18,8 +18,7 @@ func (m *Manifest) Load(dirName, manifestName string) error {
 	}
 	defer file.Close()
 	dec := json.NewDecoder(file)
-	manifest := map[string]Sum{}
-	if err = dec.Decode(&manifest); err != nil {
+	if err = dec.Decode(m); err != nil {
 		return fmt.Errorf("Couldn't understand manifest file format %v: %v", filename, err)
 	}
 	return nil
