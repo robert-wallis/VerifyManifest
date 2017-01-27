@@ -24,7 +24,7 @@ func Test_Manifest_Load(t *testing.T) {
 		if k != "a.txt" && k != "b.txt" {
 			t.Error("Unexpected file in test folder", k)
 		}
-		count ++
+		count++
 	}
 	if count == 0 {
 		t.Errorf("Should have been 2 files but were %v", count)
