@@ -1,0 +1,10 @@
+{
+	"a.txt": {
+		"MD5": "0cc175b9c0f1b6a831c399e269772661",
+		"SHA1": "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8"
+	},
+	"b.txt": {
+		"MD5": "9dd4e461268c8034f5c8564e155c67a6",
+		"SHA1": "11f6ad8ec52a2984abaafd7c3b516503785c2072"
+	}
+}
