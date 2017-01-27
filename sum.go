@@ -2,16 +2,16 @@
 package main
 
 import (
-	"io"
-	"fmt"
-	"strings"
-	"crypto/sha1"
 	"crypto/md5"
+	"crypto/sha1"
+	"fmt"
+	"io"
 	"os"
+	"strings"
 )
 
 type Sum struct {
-	MD5 string
+	MD5  string
 	SHA1 string
 }
 

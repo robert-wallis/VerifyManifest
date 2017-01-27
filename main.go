@@ -3,10 +3,10 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"flag"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 )
 
@@ -97,4 +97,3 @@ func filterFiles(files []os.FileInfo) []string {
 	}
 	return result
 }
-

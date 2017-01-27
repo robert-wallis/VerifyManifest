@@ -2,10 +2,10 @@
 package main
 
 import (
-	"testing"
-	"os"
 	"encoding/json"
+	"os"
 	"strings"
+	"testing"
 )
 
 func Test_Manifest_Load(t *testing.T) {
@@ -29,9 +29,9 @@ func Test_Manifest_Load(t *testing.T) {
 func Test_Manifest_Save(t *testing.T) {
 	// GIVEN a new manifest that was generated
 	manifest := Manifest{}
-	manifest["test.txt"] = Sum {
-		MD5:"md5",
-		SHA1:"sha1",
+	manifest["test.txt"] = Sum{
+		MD5:  "md5",
+		SHA1: "sha1",
 	}
 
 	// WHEN the manifest is saved
