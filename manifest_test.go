@@ -26,6 +26,21 @@ func Test_Manifest_Load(t *testing.T) {
 	}
 }
 
+func Test_Manifest_Load_FileError(t *testing.T) {
+	// GIVEN a file that doesn't exist
+	dirname := "test_data"
+	filename := "noexist"
+
+	// WHEN it is loaded
+	manifest := Manifest{}
+	err := manifest.Load(dirname, filename)
+
+	// THEN an error should happen
+	if err == nil {
+		t.Fatalf("Expected an error with %v/%v but no error happened.", dirname, filename)
+	}
+}
+
 func Test_Manifest_Save(t *testing.T) {
 	// GIVEN a new manifest that was generated
 	manifest := Manifest{}
@@ -67,5 +82,25 @@ func Test_Manifest_Save(t *testing.T) {
 		if v.SHA1 != actual[k].SHA1 {
 			t.Errorf("%v SHA1 value expected %v actual %v", k, v, actual[k].SHA1)
 		}
+	}
+}
+
+func Test_Manifest_Save_FileError(t *testing.T) {
+	// GIVEN a new manifest that was generated
+	// AND a bad directory
+	dirname := "noexist"
+	filename := "noexist"
+	manifest := Manifest{}
+	manifest["test.txt"] = Sum{
+		MD5:  "md5",
+		SHA1: "sha1",
+	}
+
+	// WHEN it is saved
+	err := manifest.Save(dirname, filename)
+
+	// THEN it should have an error
+	if err == nil {
+		t.Errorf("Should have had an error saving to a fake folder %v/%v but didn't", dirname, filename)
 	}
 }
