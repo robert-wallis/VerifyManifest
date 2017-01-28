@@ -6,7 +6,7 @@ If the contents of a folder change, then VerifyManifest will tell you when you r
 # Installation
 
 ### Download
-Download [VerifyManifest.exe v0.1](https://github.com/robert-wallis/VerifyManifest/releases/download/v0.1/VerifyManifest.exe) to your `PATH`somewhere.
+Download [VerifyManifest.exe v0.2](https://github.com/robert-wallis/VerifyManifest/releases/download/v0.2/VerifyManifest.exe) to your `PATH`somewhere.
 
 ### Or
 ### Install from Source
