@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"path"
+	"errors"
 )
 
 type fileNameSum struct {
@@ -87,7 +88,7 @@ func hashFolder(dirName, manifestFileName, unknownFileName string, infoLog, erro
 			infoLog.Printf("Saved manifest to %v\n", path.Join(dirName, manifestFileName))
 		}
 	} else {
-		return fmt.Errorf("Some hashes failed, manifest not updated. %v", checkFailure)
+		return errors.New("Some hashes failed, manifest not updated.")
 	}
 	return nil
 }
