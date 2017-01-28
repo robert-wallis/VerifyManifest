@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7d00621c-62c7-483e-97b6-94d9943e7120" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/VerifyManifest.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -100,6 +96,7 @@
         <option value="$PROJECT_DIR$/folder_test.go" />
         <option value="$PROJECT_DIR$/main.go" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/.idea/workspace.xml" />
       </list>
     </option>
   </component>
@@ -476,7 +473,8 @@
     <MESSAGE value="Refactoring Verify into Manifest" />
     <MESSAGE value="Verifying other manifest via &quot;Unknown File&quot; feature." />
     <MESSAGE value="Fix main to show returned errors." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix main to show returned errors." />
+    <MESSAGE value="Adding .idea with workspace.xml so that the run configs and tests are in the menu." />
+    <option name="LAST_COMMIT_MESSAGE" value="Adding .idea with workspace.xml so that the run configs and tests are in the menu." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
