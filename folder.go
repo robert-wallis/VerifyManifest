@@ -29,22 +29,31 @@ func streamHashes(dirName string, files chan string, result chan *fileNameSum) e
 	return nil
 }
 
-func hashFolder(dirName, manifestFile string, infoLog, errorLog *log.Logger) error {
+func hashFolder(dirName, manifestFileName, unknownFileName string, infoLog, errorLog *log.Logger) error {
 	files, err := ioutil.ReadDir(dirName)
 	if err != nil {
 		return err
 	}
 
-	oldManifest := Manifest{}
-	if err := oldManifest.Load(dirName, manifestFile); err != nil {
-		infoLog.Println("Warning:", err)
-		infoLog.Println("Continuing.")
-	}
 	newManifest := Manifest{}
+	oldManifest := Manifest{}
+	if len(manifestFileName) > 0 {
+		if err := oldManifest.Load(dirName, manifestFileName); err != nil {
+			infoLog.Println("Warning:", err)
+			infoLog.Println("Continuing.")
+		}
+	}
+	var unknownHashes *UnknownHashes
+	if unknownFileName != "" {
+		unknownHashes, err = LoadUnknownHashes(unknownFileName)
+		if err != nil {
+			return fmt.Errorf("Unable load \"unknown\" hash file: %v", err)
+		}
+	}
 
 	fileNameSums := make(chan *fileNameSum)
 	filtered := make(chan string)
-	go filterFiles(files, manifestFile, filtered)
+	go filterFiles(files, manifestFileName, filtered)
 	go func() {
 		if err := streamHashes(dirName, filtered, fileNameSums); err != nil {
 			errorLog.Println(err)
@@ -53,21 +62,30 @@ func hashFolder(dirName, manifestFile string, infoLog, errorLog *log.Logger) err
 
 	checkFailure := false
 	for f := range fileNameSums {
-		if oldManifest != nil {
-			if err := oldManifest.Verify(f.FileName, f.Sum); err != nil {
-				checkFailure = true
-				errorLog.Printf("Error %v: %v\n", f.FileName, err)
-			}
-		}
 		newManifest[f.FileName] = f.Sum
+		if err := oldManifest.Verify(f.FileName, f.Sum); err != nil {
+			checkFailure = true
+			errorLog.Printf("Error %v: %v\n", f.FileName, err)
+		}
+		if unknownHashes != nil {
+			unknownHashes.RemoveSum(f.Sum)
+		}
 		infoLog.Printf("%v\tmd5:%v\tsha1:%v\n", f.FileName, f.Sum.MD5, f.Sum.SHA1)
+	}
+	if unknownHashes != nil {
+		for k, v := range *unknownHashes {
+			checkFailure = true
+			errorLog.Printf("Hash %v was in %v line %d, but not found in dir: %v", k, unknownFileName, v.LineNumber, v.Line)
+		}
 	}
 
 	if !checkFailure {
-		if err := newManifest.Save(dirName, manifestFile); err != nil {
-			return fmt.Errorf("Error saving manifest %v", err)
+		if len(manifestFileName) > 0 {
+			if err := newManifest.Save(dirName, manifestFileName); err != nil {
+				return fmt.Errorf("Error saving manifest %v", err)
+			}
+			infoLog.Printf("Saved manifest to %v\n", path.Join(dirName, manifestFileName))
 		}
-		infoLog.Printf("Saved manifest to %v\n", path.Join(dirName, manifestFile))
 	} else {
 		return fmt.Errorf("Some hashes failed, manifest not updated. %v", checkFailure)
 	}

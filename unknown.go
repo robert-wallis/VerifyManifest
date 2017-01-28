@@ -9,20 +9,24 @@ import (
 	"strings"
 )
 
+type UnknownHashes map[string]HashLocation
+
 type HashLocation struct {
 	LineNumber int
 	Line       string
 }
 
-func LoadUnknownForHashes(filename string) (map[string]HashLocation, error) {
-	lineNumber := 0
+// Load an unknown text file format, and look for strings that look like hashes.
+// Save the location of each hash.
+func LoadUnknownHashes(filename string) (*UnknownHashes, error) {
+	lineNumber := 1
 	file, err := os.Open(filename)
 	if err != nil {
-		return nil, fmt.Errorf("Couldn't scan file for hashes %v: %v", filename, err)
+		return nil, fmt.Errorf("Couldn't scan file for hashes in %v: %v", filename, err)
 	}
 	defer file.Close()
 
-	result := make(map[string]HashLocation)
+	result := &UnknownHashes{}
 
 	rd := bufio.NewReader(file)
 	line := []rune{}
@@ -49,7 +53,7 @@ func LoadUnknownForHashes(filename string) (map[string]HashLocation, error) {
 				LineNumber: lineNumber,
 				Line:       string(line),
 			}
-			result[lower] = hl
+			result.Set(lower, hl)
 		}
 		if sha1 := SHA1InString(line); sha1 != nil {
 			lower := strings.ToLower(*sha1)
@@ -57,12 +61,38 @@ func LoadUnknownForHashes(filename string) (map[string]HashLocation, error) {
 				LineNumber: lineNumber,
 				Line:       string(line),
 			}
-			result[lower] = hl
+			result.Set(lower, hl)
 		}
 		line = []rune{}
 		lineNumber++
 	}
 	return result, nil
+}
+
+// Add the hash to the list
+func (u *UnknownHashes) Set(hash string, location HashLocation) {
+	(*u)[hash] = location
+}
+
+// Get the hash from the list
+func (u *UnknownHashes) Get(hash string) (location HashLocation, ok bool) {
+	v, ok := (*u)[hash]
+	return v, ok
+}
+
+// Remove the hash from the list
+func (u *UnknownHashes) Remove(hash string) {
+	delete(*u, hash)
+}
+
+// Remove the hash from the list if it's in the Sum structure
+func (u *UnknownHashes) RemoveSum(sum Sum) {
+	if _, ok := u.Get(sum.MD5); ok {
+		u.Remove(sum.MD5)
+	}
+	if _, ok := u.Get(sum.SHA1); ok {
+		u.Remove(sum.SHA1)
+	}
 }
 
 // returns the substring that looks like an MD5 sum in a string

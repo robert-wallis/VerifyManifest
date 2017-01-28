@@ -19,6 +19,7 @@ const VERIFY_MANIFEST_WEBSITE = "https://github.com/robert-wallis/VerifyManifest
 type commandFlag struct {
 	RootDir          string
 	ManifestFilename string
+	UnknownFilename  string
 }
 
 var g_flags = commandFlag{}
@@ -26,6 +27,7 @@ var g_flags = commandFlag{}
 func init() {
 	flag.StringVar(&g_flags.RootDir, "root", ".", "Root folder to calculate Sum.")
 	flag.StringVar(&g_flags.ManifestFilename, "manifest", "manifest.json", "Manifest file name.")
+	flag.StringVar(&g_flags.UnknownFilename, "unknown", "", "A text manifest file that contains hash sums in an unknown format.  Every sum in \"unknown\" file must be present in directory to pass.")
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\nVersion %s\n%s\n\n", os.Args[0], VERIFY_MANIFEST_VERSION, VERIFY_MANIFEST_WEBSITE)
 		flag.PrintDefaults()
@@ -36,5 +38,5 @@ func main() {
 	flag.Parse()
 	infoLog := log.New(os.Stdout, "", 0)
 	errorLog := log.New(os.Stderr, "", 0)
-	hashFolder(g_flags.RootDir, g_flags.ManifestFilename, infoLog, errorLog)
+	hashFolder(g_flags.RootDir, g_flags.ManifestFilename, g_flags.UnknownFilename, infoLog, errorLog)
 }
