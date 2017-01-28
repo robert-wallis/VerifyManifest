@@ -8,16 +8,33 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 )
 
-var rootDir = flag.String("root", ".", "Root folder to calculate Sum.")
-var manifestFilename = flag.String("manifest", "manifest.json", "Manifest file name.")
+const VERIFY_MANIFEST_VERSION = "v0.2"
+const VERIFY_MANIFEST_WEBSITE = "https://github.com/robert-wallis/VerifyManifest"
+
+type commandFlag struct {
+	RootDir          string
+	ManifestFilename string
+}
+
+var g_flags = commandFlag{}
+
+func init() {
+	flag.StringVar(&g_flags.RootDir, "root", ".", "Root folder to calculate Sum.")
+	flag.StringVar(&g_flags.ManifestFilename, "manifest", "manifest.json", "Manifest file name.")
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\nVersion %s\n%s\n\n", os.Args[0], VERIFY_MANIFEST_VERSION, VERIFY_MANIFEST_WEBSITE)
+		flag.PrintDefaults()
+	}
+}
 
 func main() {
 	flag.Parse()
 	infoLog := log.New(os.Stdout, "", 0)
 	errorLog := log.New(os.Stderr, "", 0)
-	hashFolder(*rootDir, *manifestFilename, infoLog, errorLog)
+	hashFolder(g_flags.RootDir, g_flags.ManifestFilename, infoLog, errorLog)
 }
