@@ -54,12 +54,9 @@ func hashFolder(dirName, manifestFile string, infoLog, errorLog *log.Logger) err
 	checkFailure := false
 	for f := range fileNameSums {
 		if oldManifest != nil {
-			old, ok := oldManifest[f.FileName]
-			if ok {
-				if err := old.Verify(f.Sum); err != nil {
-					checkFailure = true
-					errorLog.Printf("Error %v: %v\n", f.FileName, err)
-				}
+			if err := oldManifest.Verify(f.FileName, f.Sum); err != nil {
+				checkFailure = true
+				errorLog.Printf("Error %v: %v\n", f.FileName, err)
 			}
 		}
 		newManifest[f.FileName] = f.Sum

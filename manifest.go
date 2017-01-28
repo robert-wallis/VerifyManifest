@@ -38,3 +38,13 @@ func (m *Manifest) Save(dirName string, manifestName string) error {
 	}
 	return nil
 }
+
+func (m *Manifest) Verify(fileName string, sum Sum) error {
+	old, ok := (*m)[fileName]
+	if ok {
+		if err := old.Verify(sum); err != nil {
+			return fmt.Errorf("Error %v: %v\n", fileName, err)
+		}
+	}
+	return nil
+}

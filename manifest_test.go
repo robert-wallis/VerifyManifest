@@ -109,3 +109,42 @@ func Test_Manifest_Save_FileError(t *testing.T) {
 		t.Errorf("Should have had an error saving to a fake folder %v/%v but didn't", dirname, filename)
 	}
 }
+
+func Test_Manifest_Verify(t *testing.T) {
+	// GIVEN a manifest with a file
+	m := Manifest{}
+	fileName := "test.txt"
+	sum := Sum{
+		MD5:  "md5test",
+		SHA1: "sha1test",
+	}
+	m[fileName] = sum
+
+	// WHEN the file is not in the manifest
+	err := m.Verify("noexist", sum)
+
+	// THEN there should be no error
+	if err != nil {
+		t.Errorf("Expecting no error: %v", err)
+	}
+
+	// WHEN the file is in the manifest and the sum is the same
+	err = m.Verify(fileName, sum)
+
+	// THEN there should be no error
+	if err != nil {
+		t.Errorf("Expecting no error: %v", err)
+	}
+
+	// WHEN the file exists, but the sum is different
+	badSum := Sum{
+		MD5:  "badsum",
+		SHA1: "badsum",
+	}
+	err = m.Verify(fileName, badSum)
+
+	// THEN there should be an error
+	if err == nil {
+		t.Errorf("Expecing an error, got %v", err)
+	}
+}
