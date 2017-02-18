@@ -63,20 +63,20 @@ func Test_Manifest_Save(t *testing.T) {
 
 	// THEN it should save correctly
 	expected := Manifest{}
-	expected_text := "{\n\t\"test.txt\": {\n\t\t\"MD5\": \"md5\",\n\t\t\"SHA1\": \"sha1\"\n\t}\n}"
-	expected_dec := json.NewDecoder(strings.NewReader(expected_text))
-	if err = expected_dec.Decode(&expected); err != nil {
+	expectedText := "{\n\t\"test.txt\": {\n\t\t\"MD5\": \"md5\",\n\t\t\"SHA1\": \"sha1\"\n\t}\n}"
+	expectedDec := json.NewDecoder(strings.NewReader(expectedText))
+	if err = expectedDec.Decode(&expected); err != nil {
 		t.Fatalf("Expected decode failed %v", err)
 	}
 
 	actual := Manifest{}
-	actual_file, err := os.Open("test_manifest.json")
+	actualFile, err := os.Open("test_manifest.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer actual_file.Close()
-	actual_dec := json.NewDecoder(actual_file)
-	if err = actual_dec.Decode(&actual); err != nil {
+	defer actualFile.Close()
+	actualDec := json.NewDecoder(actualFile)
+	if err = actualDec.Decode(&actual); err != nil {
 		t.Fatalf("Actual decode failed %v", err)
 	}
 

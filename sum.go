@@ -10,11 +10,13 @@ import (
 	"strings"
 )
 
+// Sum is a collection of hash strings.
 type Sum struct {
 	MD5  string
 	SHA1 string
 }
 
+// Calculate takes a full-path filename and calculates the hashes of that file.
 func (s *Sum) Calculate(fileName string) error {
 	sha1hash := sha1.New()
 	md5hash := md5.New()
@@ -39,6 +41,7 @@ func (s *Sum) Calculate(fileName string) error {
 	return nil
 }
 
+// Verify compares one sum to another sum, and makes sure all the hashes that are available match.
 func (s *Sum) Verify(other Sum) error {
 	if strings.ToLower(s.MD5) != strings.ToLower(other.MD5) {
 		return fmt.Errorf("MD5 mismatch %v != %v", s.MD5, other.MD5)

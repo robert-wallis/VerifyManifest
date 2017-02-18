@@ -1,3 +1,5 @@
+[![goreportcard.com](https://goreportcard.com/badge/github.com/robert-wallis/VerifyManifest)](https://goreportcard.com/report/github.com/robert-wallis/VerifyManifest)
+
 # Verify Manifest
 
 Helps create and verify the SHA1 and MD5 hashes :1234: with a `manifest.json` file.

@@ -58,24 +58,24 @@ func Test_Sum_Verify(t *testing.T) {
 	}
 
 	// WHEN the sum is tested against a wrong md5
-	bad_md5 := Sum{
+	badMd5 := Sum{
 		MD5:  "x",
 		SHA1: "sha1",
 	}
 
 	// THEN it should fail
-	if err := sum.Verify(bad_md5); err == nil {
-		t.Errorf("Expecting failure with MD5 but didn't error. %v", bad_md5)
+	if err := sum.Verify(badMd5); err == nil {
+		t.Errorf("Expecting failure with MD5 but didn't error. %v", badMd5)
 	}
 
 	// WHEN the sum is tested against the wrong sha1
-	bad_sha1 := Sum{
+	badSha1 := Sum{
 		MD5:  "md5",
 		SHA1: "x",
 	}
 
 	// THEN it should fail
-	if err := sum.Verify(bad_sha1); err == nil {
-		t.Errorf("Expecting failure with SHA1 but didn't error. %v", bad_sha1)
+	if err := sum.Verify(badSha1); err == nil {
+		t.Errorf("Expecting failure with SHA1 but didn't error. %v", badSha1)
 	}
 }

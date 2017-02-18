@@ -9,15 +9,17 @@ import (
 	"strings"
 )
 
+// UnknownHashes is a list of `HashLocation`s
 type UnknownHashes map[string]HashLocation
 
+// HashLocation contains placeholder information for where a hash was located in a file.
+// This information is used when showing an error so you can know from where in the manifest file it came.
 type HashLocation struct {
 	LineNumber int
 	Line       string
 }
 
-// Load an unknown text file format, and look for strings that look like hashes.
-// Save the location of each hash.
+// LoadUnknownHashes loads an unknown text file format, and look for strings that look like hashes.
 func LoadUnknownHashes(filename string) (*UnknownHashes, error) {
 	lineNumber := 1
 	file, err := os.Open(filename)
@@ -69,23 +71,23 @@ func LoadUnknownHashes(filename string) (*UnknownHashes, error) {
 	return result, nil
 }
 
-// Add the hash to the list
+// Set adds the hash to the list
 func (u *UnknownHashes) Set(hash string, location HashLocation) {
 	(*u)[hash] = location
 }
 
-// Get the hash from the list
+// Get returns the hash from the list
 func (u *UnknownHashes) Get(hash string) (location HashLocation, ok bool) {
 	v, ok := (*u)[hash]
 	return v, ok
 }
 
-// Remove the hash from the list
+// Remove removes the hash from the list
 func (u *UnknownHashes) Remove(hash string) {
 	delete(*u, hash)
 }
 
-// Remove the hash from the list if it's in the Sum structure
+// RemoveSum removes the hash from the list if it's in the Sum structure
 func (u *UnknownHashes) RemoveSum(sum Sum) {
 	if _, ok := u.Get(sum.MD5); ok {
 		u.Remove(sum.MD5)
@@ -95,12 +97,12 @@ func (u *UnknownHashes) RemoveSum(sum Sum) {
 	}
 }
 
-// returns the substring that looks like an MD5 sum in a string
+// MD5InString returns the substring that looks like an MD5 sum in a string
 func MD5InString(line []rune) *string {
 	return hexString(line, 32)
 }
 
-// returns the substring that looks like a SHA1 sum in a string
+// SHA1InString returns the substring that looks like a SHA1 sum in a string
 func SHA1InString(line []rune) *string {
 	return hexString(line, 40)
 }
