@@ -21,7 +21,7 @@ type folderHasher struct {
 	unknownFileName  string
 }
 
-// NewFolderHash returns a folderHasher that can be used to verify the contents of every file in the folder.
+// NewFolderHasher returns a folderHasher that can be used to verify the contents of every file in the folder.
 // `manifestFileName` is the file in the folder that contains the manifest, ex. `manifest.json`
 // `unknownFileName` is a text file that contains some random manifest format with hashes in it.  For example `openssl md5 * > manifest.txt`
 // `infoLog` the logger where information messages are printed, i.e. os.Stdout

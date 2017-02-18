@@ -8,7 +8,7 @@ import (
 	"path"
 )
 
-// Manifests are a collection of files and their hashed sums.
+// Manifest is a collection of files and their hashed sums.
 type Manifest map[string]Sum
 
 // Load the manifest file located in dirName.

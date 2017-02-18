@@ -32,10 +32,8 @@ func LoadUnknownHashes(filename string) (*UnknownHashes, error) {
 
 	rd := bufio.NewReader(file)
 	line := []rune{}
-	i := 0
 	for {
-		r, c, err := rd.ReadRune()
-		i += c
+		r, _, err := rd.ReadRune()
 		if err != nil && err != io.EOF {
 			err = fmt.Errorf("Error scanning for hashes in %v: %v", filename, err)
 			return nil, err
