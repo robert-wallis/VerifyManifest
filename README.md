@@ -1,6 +1,7 @@
-[![goreportcard.com](https://goreportcard.com/badge/github.com/robert-wallis/VerifyManifest)](https://goreportcard.com/report/github.com/robert-wallis/VerifyManifest)
-
 # Verify Manifest
+
+<a href="https://goreportcard.com/report/github.com/robert-wallis/VerifyManifest"><img alt="goreportcard.com badge" src="https://goreportcard.com/badge/github.com/robert-wallis/VerifyManifest" /></a>
+<a href="https://codebeat.co/projects/github-com-robert-wallis-verifymanifest"><img alt="codebeat badge" src="https://codebeat.co/badges/4a30f2e5-559d-4414-ae97-0633824a75bb" /></a>
 
 Helps create and verify the SHA1 and MD5 hashes :1234: with a `manifest.json` file.
 If the contents of a folder change, then VerifyManifest will tell you when you run it.
