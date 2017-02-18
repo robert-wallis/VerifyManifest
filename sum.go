@@ -27,11 +27,10 @@ func (s *Sum) Calculate(fileName string) error {
 	buffer := make([]byte, 65536)
 	for {
 		count, err := file.Read(buffer)
-		if err != nil {
-			if err != io.EOF {
-				return err
-			}
+		if err == io.EOF {
 			break
+		} else if err != nil {
+			return err
 		}
 		sha1hash.Write(buffer[:count])
 		md5hash.Write(buffer[:count])
