@@ -46,3 +46,5 @@ a.txt   md5:0cc175b9c0f1b6a831c399e269772661    sha1:86f7e437faa5a7fce15d1ddcb9e
 Error b.txt: MD5 mismatch 92eb5ffee6ae2fec3ad71c777531578f != efaddc0ff690c7f1f7d802143b5172be
 b.txt   md5:efaddc0ff690c7f1f7d802143b5172be    sha1:b234c9cbc82c27e7f996dd4744791336ed5ea287
 ```
+
+#### Copyright (C) 2017 Robert A. Wallis, All Rights Reserved
