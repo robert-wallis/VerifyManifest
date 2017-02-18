@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"os"
-	"path"
 	"strings"
 	"testing"
 )
@@ -61,58 +59,14 @@ func Test_streamHashes_FileError(t *testing.T) {
 	}
 }
 
-func Test_hashFolder_BadManifest(t *testing.T) {
-	// GIVEN the test folder
-	dirName := "test_data"
-	manifestFile := "bad_manifests/bad_b.json"
-	var infoBuffer bytes.Buffer
-	var errorBuffer bytes.Buffer
-
-	// WHEN the folder is hashed
-	infoLog := log.New(&infoBuffer, "", 0)
-	errorLog := log.New(&errorBuffer, "", 0)
-	err := hashFolder(dirName, manifestFile, "", infoLog, errorLog)
-	if err == nil {
-		t.Error("Should have returned a failure.")
-	}
-
-	// THEN there should be an error log that the manifest failed for b.txt
-	s := errorBuffer.String()
-	if len(s) == 0 {
-		t.Fatal("Should have had something in the error log, but didnt.")
-	}
-}
-
-func Test_hashFolder_DirError(t *testing.T) {
-	// GIVEN a missing folder
-	dirName := "noexist"
-	manifestName := "manifest.json"
-	var infoBuffer bytes.Buffer
-	var errorBuffer bytes.Buffer
-
-	// WHEN the folder is hashed
-	infoLog := log.New(&infoBuffer, "", 0)
-	errorLog := log.New(&errorBuffer, "", 0)
-	err := hashFolder(dirName, manifestName, "", infoLog, errorLog)
-
-	// THEN there should be an error log that the folder didn't exist
-	if err == nil {
-		t.Error("Should have returned a failure.")
-	}
-}
-
-func Test_hashFolder_FileError(t *testing.T) {
-	// GIVEN a missing file
+func Test_loadPreviousHashes_MissingManifest(t *testing.T) {
+	// GIVEN a missing manifest file
 	dirName := "test_data"
 	manifestName := "noexist"
-	var infoBuffer bytes.Buffer
-	var errorBuffer bytes.Buffer
-	defer os.Remove(path.Join(dirName, manifestName))
+	infoBuffer, errorBuffer, h := makeTestFolderHasher(manifestName, "")
 
-	// WHEN the folder is hashed
-	infoLog := log.New(&infoBuffer, "", 0)
-	errorLog := log.New(&errorBuffer, "", 0)
-	err := hashFolder(dirName, manifestName, "", infoLog, errorLog)
+	// WHEN the manifest is loaded
+	_, _, err := h.loadPreviousHashes(dirName)
 
 	// THEN there should be not be an error that the manifest didn't exist
 	if err != nil {
@@ -132,17 +86,53 @@ func Test_hashFolder_FileError(t *testing.T) {
 	}
 }
 
+func Test_loadPreviousHashes_FileLoadError(t *testing.T) {
+	// GIVEN a missing unknown file
+	dirName := "test_data"
+	manifestFilename := ""
+	unknownFilename := "noexist"
+	_, _, h := makeTestFolderHasher(manifestFilename, unknownFilename)
+
+	// WHEN the folder is hashed
+	_, _, err := h.loadPreviousHashes(dirName)
+
+	// THEN there should be a failure that the file didn't exist
+	if err == nil {
+		t.Errorf("Should have returned a failure. %v", err)
+	}
+	if !strings.Contains(fmt.Sprintf("%v", err), unknownFilename) {
+		t.Errorf("Error should contain filename %v: %v", unknownFilename, err)
+	}
+}
+
+func Test_hashFolder_DirError(t *testing.T) {
+	// GIVEN a missing folder
+	dirName := "noexist"
+	manifestName := "manifest.json"
+	_, _, h := makeTestFolderHasher(manifestName, "")
+
+	// WHEN the folder is hashed
+	err := h.HashFolder(dirName)
+
+	// THEN there should be an error log that the folder didn't exist
+	if err == nil {
+		t.Error("Should have returned a failure.")
+	}
+}
+
 func Test_hashFolder_NoManifest(t *testing.T) {
 	// GIVEN no manifest filename (none wanted)
 	dirName := "test_data"
-	infoBuffer := bytes.Buffer{}
-	infoLog := log.New(&infoBuffer, "", 0)
-	errorLog := log.New(&bytes.Buffer{}, "", 0)
+	manifestFile := ""
+	infoBuffer, errorBuffer, h := makeTestFolderHasher(manifestFile, "")
 
 	// THEN it shouldn't error
-	err := hashFolder(dirName, "", "", infoLog, errorLog)
+	err := h.HashFolder(dirName)
 	if err != nil {
 		t.Errorf("Missing manifest file should be ok, just don't save and print results. %v", err)
+	}
+	if errorBuffer.Len() > 0 {
+		t.Errorf("The error buffer should be empty: %v", errorBuffer)
 	}
 
 	is := infoBuffer.String()
@@ -150,23 +140,40 @@ func Test_hashFolder_NoManifest(t *testing.T) {
 	if !strings.Contains(is, aMd5) {
 		t.Errorf("%v was not in the info buffer, but should have been: %v", aMd5, is)
 	}
+
 }
 
 func Test_hashFolder_FileSaveError(t *testing.T) {
 	// GIVEN a missing file
 	dirName := "test_data"
 	manifestName := "."
-	var infoBuffer bytes.Buffer
-	var errorBuffer bytes.Buffer
+	_, _, h := makeTestFolderHasher(manifestName, "")
 
 	// WHEN the folder is hashed
-	infoLog := log.New(&infoBuffer, "", 0)
-	errorLog := log.New(&errorBuffer, "", 0)
-	err := hashFolder(dirName, manifestName, "", infoLog, errorLog)
+	err := h.HashFolder(dirName)
 
 	// THEN there should be not be an error that the manifest didn't exist
 	if err == nil {
 		t.Errorf("Should have returned a that it cant save manifest to a dir. %v", err)
+	}
+}
+
+func Test_hashFolder_ManifestWithInvalidHash(t *testing.T) {
+	// GIVEN a manifest with incorrect hashes
+	dirName := "test_data"
+	manifestFile := "bad_manifests/bad_b.json"
+	_, errorBuffer, h := makeTestFolderHasher(manifestFile, "")
+
+	// WHEN the manifest is loaded
+	err := h.HashFolder(dirName)
+	if err == nil {
+		t.Error("Should have returned a failure.")
+	}
+
+	// THEN there should be an error log that the manifest failed for b.txt
+	s := errorBuffer.String()
+	if len(s) == 0 {
+		t.Fatal("Should have had something in the error log, but didnt.")
 	}
 }
 
@@ -175,12 +182,10 @@ func Test_hashFolder_Unknown_Success(t *testing.T) {
 	dirName := "test_data"
 	manifestFilename := "manifest.json"
 	unknownFilename := "test_data/other_manifests/powershell.md5.txt"
-	infoLog := log.New(&bytes.Buffer{}, "", 0)
-	var errorBuffer bytes.Buffer
-	errorLog := log.New(&errorBuffer, "", 0)
+	_, errorBuffer, h := makeTestFolderHasher(manifestFilename, unknownFilename)
 
 	// WHEN the folder is hashed
-	err := hashFolder(dirName, manifestFilename, unknownFilename, infoLog, errorLog)
+	err := h.HashFolder(dirName)
 
 	// THEN there should not be an error
 	if err != nil {
@@ -199,12 +204,10 @@ func Test_hashFolder_Unknown_MissingHash(t *testing.T) {
 	dirName := "test_data"
 	manifestFilename := "manifest.json"
 	unknownFilename := "test_data/bad_manifests/powershell.extra.md5.txt"
-	infoLog := log.New(&bytes.Buffer{}, "", 0)
-	var errorBuffer bytes.Buffer
-	errorLog := log.New(&errorBuffer, "", 0)
+	_, errorBuffer, h := makeTestFolderHasher(manifestFilename, unknownFilename)
 
 	// WHEN the folder is hashed
-	err := hashFolder(dirName, manifestFilename, unknownFilename, infoLog, errorLog)
+	err := h.HashFolder(dirName)
 
 	// THEN there should be an error
 	if err == nil {
@@ -222,23 +225,11 @@ func Test_hashFolder_Unknown_MissingHash(t *testing.T) {
 	}
 }
 
-func Test_hashFolder_Unknown_FileLoadError(t *testing.T) {
-	// GIVEN a missing unknown file
-	dirName := "test_data"
-	unknownFilename := "noexist"
-	var infoBuffer bytes.Buffer
-	var errorBuffer bytes.Buffer
-
-	// WHEN the folder is hashed
-	infoLog := log.New(&infoBuffer, "", 0)
-	errorLog := log.New(&errorBuffer, "", 0)
-	err := hashFolder(dirName, "", unknownFilename, infoLog, errorLog)
-
-	// THEN there should be a failure that the file didn't exist
-	if err == nil {
-		t.Errorf("Should have returned a failure. %v", err)
-	}
-	if !strings.Contains(fmt.Sprintf("%v", err), unknownFilename) {
-		t.Errorf("Error should contain filename %v: %v", unknownFilename, err)
-	}
+func makeTestFolderHasher(manifestFileName, unknownFileName string) (infoBuffer, errorBuffer *bytes.Buffer, hasher *folderHasher) {
+	infoBuffer = &bytes.Buffer{}
+	errorBuffer = &bytes.Buffer{}
+	infoLog := log.New(infoBuffer, "", 0)
+	errorLog := log.New(errorBuffer, "", 0)
+	hasher = NewFolderHasher(manifestFileName, unknownFileName, infoLog, errorLog)
+	return
 }

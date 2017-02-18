@@ -38,7 +38,8 @@ func main() {
 	flag.Parse()
 	infoLog := log.New(os.Stdout, "", 0)
 	errorLog := log.New(os.Stderr, "", 0)
-	err := hashFolder(g_flags.RootDir, g_flags.ManifestFilename, g_flags.UnknownFilename, infoLog, errorLog)
+	hasher := NewFolderHasher(g_flags.ManifestFilename, g_flags.UnknownFilename, infoLog, errorLog)
+	err := hasher.HashFolder(g_flags.RootDir)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
