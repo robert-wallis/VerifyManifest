@@ -3,6 +3,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -19,9 +20,23 @@ func Test_Manifest_Load(t *testing.T) {
 	}
 
 	// THEN it should contain the "a.txt" and "b.txt" files
+	expected := []string{
+		"a.txt", "b.txt",
+		fmt.Sprintf("%s%c%s", "bad_manifests", os.PathSeparator, "bad_b.json"),
+		fmt.Sprintf("%s%c%s", "bad_manifests", os.PathSeparator, "powershell.extra.md5.txt"),
+		fmt.Sprintf("%s%c%s", "other_manifests", os.PathSeparator, "powershell.md5.txt"),
+		fmt.Sprintf("%s%c%s", "other_manifests", os.PathSeparator, "powershell.sha1.txt"),
+	}
 	count := 0
 	for k := range manifest {
-		if k != "a.txt" && k != "b.txt" {
+		var inExpected bool
+		for e := range expected {
+			if k == expected[e] {
+				inExpected = true
+				break
+			}
+		}
+		if !inExpected {
 			t.Error("Unexpected file in test folder", k)
 		}
 		count++

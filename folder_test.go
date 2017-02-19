@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
+	"path"
 	"strings"
 	"testing"
 )
@@ -12,15 +14,24 @@ import (
 func Test_streamHashes(t *testing.T) {
 	// GIVEN the test folder and a stream of files
 	dirName := "test_data"
-	files := make(chan string)
+	files := make(chan *pathFileInfo)
 	go func() {
-		files <- "a.txt"
+		fi, _ := os.Stat("test_data/a.txt")
+		files <- &pathFileInfo{fi, path.Join(dirName, fi.Name()), fi.Name()}
 		close(files)
 	}()
+	done := make(chan struct{})
 
 	// WHEN the files are streamed
 	results := make(chan *fileNameSum)
-	go streamHashes(dirName, files, results)
+	go func() {
+		err := streamHashes(done, files, results)
+
+		// THEN there were no errors
+		if err != nil {
+			t.Fatal(err)
+		}
+	}()
 
 	// THEN the hashes are generated for a
 	a := <-results
@@ -36,24 +47,29 @@ func Test_streamHashes(t *testing.T) {
 }
 
 func Test_streamHashes_FileError(t *testing.T) {
-	// GIVEN the test folder, but a file that doesn't
+	// GIVEN an error caused the done to be called
 	dirName := "test_data"
-	files := make(chan string)
+	files := make(chan *pathFileInfo)
+	done := make(chan struct{})
 	go func() {
-		files <- "noexist"
-		files <- "b.txt"
+		close(done)
+		fi, _ := os.Stat("test_data/a.txt")
+		files <- &pathFileInfo{fi, path.Join(dirName, fi.Name()), fi.Name()}
+		fi, _ = os.Stat("test_data/b.txt")
+		files <- &pathFileInfo{fi, path.Join(dirName, fi.Name()), fi.Name()}
 		close(files)
 	}()
 
 	// WHEN the files are streamed
 	results := make(chan *fileNameSum)
-	err := streamHashes(dirName, files, results)
+	err := streamHashes(done, files, results)
 
-	// THEN an error should have occurred
-	if err == nil {
-		t.Error("Stream should have failed, because file didn't exist.")
+	// THEN there shouldn't be any errors
+	if err != nil {
+		t.Errorf("Should be no return error if just done: %v", err)
 	}
 
+	// THEN there shouldn't be any results
 	for f := range results {
 		t.Errorf("No results, but got %v", f)
 	}
