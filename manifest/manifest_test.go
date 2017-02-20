@@ -15,7 +15,7 @@ func Test_Manifest_Load(t *testing.T) {
 	m := Manifest{}
 
 	// WHEN it is loaded
-	err := m.Load("test_data", "manifest.json")
+	err := m.Load("../test_data", "manifest.json")
 	if err != nil {
 		t.Fatal(err)
 	}
