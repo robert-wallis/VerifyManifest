@@ -20,6 +20,9 @@ type commandFlag struct {
 	RootDir          string
 	ManifestFilename string
 	UnknownFilename  string
+	infoLog          *log.Logger
+	errorLog         *log.Logger
+	exit             func(code int)
 }
 
 var gFlags = commandFlag{}
@@ -32,15 +35,17 @@ func init() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\nVersion %s\n%s\n\n", os.Args[0], verifyManifestVersion, verifyManifestWebsite)
 		flag.PrintDefaults()
 	}
+	gFlags.infoLog = log.New(os.Stdout, "", 0)
+	gFlags.errorLog = log.New(os.Stderr, "", 0)
+	gFlags.exit = os.Exit
 }
 
 func main() {
 	flag.Parse()
-	infoLog := log.New(os.Stdout, "", 0)
-	errorLog := log.New(os.Stderr, "", 0)
-	hasher := NewFolderHasher(gFlags.ManifestFilename, gFlags.UnknownFilename, infoLog, errorLog)
+	hasher := NewFolderHasher(gFlags.ManifestFilename, gFlags.UnknownFilename, gFlags.infoLog, gFlags.errorLog)
 	err := hasher.HashFolder(gFlags.RootDir)
 	if err != nil {
-		errorLog.Fatal(err)
+		gFlags.errorLog.Print(err)
+		gFlags.exit(1)
 	}
 }

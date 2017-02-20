@@ -5,11 +5,11 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/robert-wallis/VerifyManifest/manifest"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
-	"github.com/robert-wallis/VerifyManifest/manifest"
 )
 
 type fileNameSum struct {
