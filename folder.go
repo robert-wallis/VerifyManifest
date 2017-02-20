@@ -9,11 +9,12 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"github.com/robert-wallis/VerifyManifest/manifest"
 )
 
 type fileNameSum struct {
 	FileName string
-	Sum      Sum
+	Sum      manifest.Sum
 }
 
 type folderHasher struct {
@@ -98,7 +99,7 @@ func walkFolder(dirName string, done chan struct{}, files chan *pathFileInfo) (e
 }
 
 // any unknown hashes left are failures
-func (h *folderHasher) verifyUnknownHashes(unknownHashes *UnknownHashes) bool {
+func (h *folderHasher) verifyUnknownHashes(unknownHashes *manifest.UnknownHashes) bool {
 	verifyFail := false
 	if unknownHashes != nil {
 		for k, v := range *unknownHashes {
@@ -131,8 +132,8 @@ func streamHashes(done chan struct{}, files chan *pathFileInfo, result chan *fil
 }
 
 // go though all the hashes in the fileNameSums stream, save them in the newManifest, and remove them from unknownHashes
-func (h *folderHasher) verifyFiles(done chan struct{}, fileNameSums chan *fileNameSum, oldManifest *Manifest, unknownHashes *UnknownHashes) (newManifest *Manifest, verifyFail bool) {
-	newManifest = &Manifest{}
+func (h *folderHasher) verifyFiles(done chan struct{}, fileNameSums chan *fileNameSum, oldManifest *manifest.Manifest, unknownHashes *manifest.UnknownHashes) (newManifest *manifest.Manifest, verifyFail bool) {
+	newManifest = &manifest.Manifest{}
 	for f := range fileNameSums {
 		(*newManifest)[f.FileName] = f.Sum
 		if err := oldManifest.Verify(f.FileName, f.Sum); err != nil {
@@ -153,8 +154,8 @@ func (h *folderHasher) verifyFiles(done chan struct{}, fileNameSums chan *fileNa
 }
 
 // load the oldManifest and/or an unknownHahses file
-func (h *folderHasher) loadPreviousHashes(dirName string) (oldManifest *Manifest, unknownHashes *UnknownHashes, err error) {
-	oldManifest = &Manifest{}
+func (h *folderHasher) loadPreviousHashes(dirName string) (oldManifest *manifest.Manifest, unknownHashes *manifest.UnknownHashes, err error) {
+	oldManifest = &manifest.Manifest{}
 
 	if len(h.manifestFileName) > 0 {
 		if err := oldManifest.Load(dirName, h.manifestFileName); err != nil {
@@ -163,7 +164,7 @@ func (h *folderHasher) loadPreviousHashes(dirName string) (oldManifest *Manifest
 		}
 	}
 	if h.unknownFileName != "" {
-		unknownHashes, err = LoadUnknownHashes(h.unknownFileName)
+		unknownHashes, err = manifest.LoadUnknownHashes(h.unknownFileName)
 		if err != nil {
 			return nil, nil, fmt.Errorf("Unable load \"unknown\" hash file: %v", err)
 		}
