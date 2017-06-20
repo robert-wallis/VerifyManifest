@@ -1,5 +1,6 @@
 // Copyright (C) 2017 Robert A. Wallis, All Rights Reserved
-package main
+
+package manifest
 
 import (
 	"encoding/json"

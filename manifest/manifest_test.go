@@ -1,8 +1,10 @@
 // Copyright (C) 2017 Robert A. Wallis, All Rights Reserved
-package main
+
+package manifest
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -10,18 +12,32 @@ import (
 
 func Test_Manifest_Load(t *testing.T) {
 	// GIVEN the test manifest file
-	manifest := Manifest{}
+	m := Manifest{}
 
 	// WHEN it is loaded
-	err := manifest.Load("test_data", "manifest.json")
+	err := m.Load("../test_data", "manifest.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// THEN it should contain the "a.txt" and "b.txt" files
+	expected := []string{
+		"a.txt", "b.txt",
+		fmt.Sprintf("%s%c%s", "bad_manifests", os.PathSeparator, "bad_b.json"),
+		fmt.Sprintf("%s%c%s", "bad_manifests", os.PathSeparator, "powershell.extra.md5.txt"),
+		fmt.Sprintf("%s%c%s", "other_manifests", os.PathSeparator, "powershell.md5.txt"),
+		fmt.Sprintf("%s%c%s", "other_manifests", os.PathSeparator, "powershell.sha1.txt"),
+	}
 	count := 0
-	for k := range manifest {
-		if k != "a.txt" && k != "b.txt" {
+	for k := range m {
+		var inExpected bool
+		for e := range expected {
+			if k == expected[e] {
+				inExpected = true
+				break
+			}
+		}
+		if !inExpected {
 			t.Error("Unexpected file in test folder", k)
 		}
 		count++
@@ -37,8 +53,8 @@ func Test_Manifest_Load_FileError(t *testing.T) {
 	filename := "noexist"
 
 	// WHEN it is loaded
-	manifest := Manifest{}
-	err := manifest.Load(dirname, filename)
+	m := Manifest{}
+	err := m.Load(dirname, filename)
 
 	// THEN an error should happen
 	if err == nil {
@@ -48,14 +64,14 @@ func Test_Manifest_Load_FileError(t *testing.T) {
 
 func Test_Manifest_Save(t *testing.T) {
 	// GIVEN a new manifest that was generated
-	manifest := Manifest{}
-	manifest["test.txt"] = Sum{
+	m := Manifest{}
+	m["test.txt"] = Sum{
 		MD5:  "md5",
 		SHA1: "sha1",
 	}
 
 	// WHEN the manifest is saved
-	err := manifest.Save(".", "test_manifest.json")
+	err := m.Save(".", "test_manifest.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,14 +111,14 @@ func Test_Manifest_Save_FileError(t *testing.T) {
 	// AND a bad directory
 	dirname := "noexist"
 	filename := "noexist"
-	manifest := Manifest{}
-	manifest["test.txt"] = Sum{
+	m := Manifest{}
+	m["test.txt"] = Sum{
 		MD5:  "md5",
 		SHA1: "sha1",
 	}
 
 	// WHEN it is saved
-	err := manifest.Save(dirname, filename)
+	err := m.Save(dirname, filename)
 
 	// THEN it should have an error
 	if err == nil {
@@ -114,14 +130,14 @@ func Test_Manifest_Verify(t *testing.T) {
 	// GIVEN a manifest with a file
 	m := Manifest{}
 	fileName := "test.txt"
-	sum := Sum{
+	s := Sum{
 		MD5:  "md5test",
 		SHA1: "sha1test",
 	}
-	m[fileName] = sum
+	m[fileName] = s
 
 	// WHEN the file is not in the manifest
-	err := m.Verify("noexist", sum)
+	err := m.Verify("noexist", s)
 
 	// THEN there should be no error
 	if err != nil {
@@ -129,7 +145,7 @@ func Test_Manifest_Verify(t *testing.T) {
 	}
 
 	// WHEN the file is in the manifest and the sum is the same
-	err = m.Verify(fileName, sum)
+	err = m.Verify(fileName, s)
 
 	// THEN there should be no error
 	if err != nil {

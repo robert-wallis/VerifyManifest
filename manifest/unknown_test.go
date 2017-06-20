@@ -1,5 +1,6 @@
 // Copyright (C) 2017 Robert A. Wallis, All Rights Reserved
-package main
+
+package manifest
 
 import (
 	"bufio"
@@ -190,7 +191,7 @@ func Test_LoadUnknownHashes_BadFile(t *testing.T) {
 func Test_LoadUnknownHashes_Powershell_MD5(t *testing.T) {
 	// GIVEN a powershell hashsum file
 	// generated with `get-filehash -algorithm md5 *.txt > powershell.md5.txt`
-	fileName := "test_data/other_manifests/powershell.md5.txt"
+	fileName := "../test_data/other_manifests/powershell.md5.txt"
 
 	// WHEN it is scanned for MD5 files
 	results, err := LoadUnknownHashes(fileName)
@@ -219,7 +220,7 @@ func Test_LoadUnknownHashes_Powershell_MD5(t *testing.T) {
 func Test_LoadUnknownHashes_Powershell_SHA1(t *testing.T) {
 	// GIVEN a powershell hashsum file
 	// generated with `get-filehash -algorithm SHA1 *.txt > powershell.sha1.txt`
-	fileName := "test_data/other_manifests/powershell.sha1.txt"
+	fileName := "../test_data/other_manifests/powershell.sha1.txt"
 
 	// WHEN it is scanned for SHA1 files
 	results, err := LoadUnknownHashes(fileName)
@@ -297,7 +298,7 @@ func Test_UnknownHashes_Set(t *testing.T) {
 
 func Test_UnknownHashes_Remove(t *testing.T) {
 	// GIVEN a populated hash file
-	u, err := LoadUnknownHashes("test_data/other_manifests/powershell.md5.txt")
+	u, err := LoadUnknownHashes("../test_data/other_manifests/powershell.md5.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -317,7 +318,7 @@ func Test_UnknownHashes_Remove(t *testing.T) {
 
 func Test_UnknownHashes_RemoveSet_MD5(t *testing.T) {
 	// GIVEN a populated hash file
-	u, err := LoadUnknownHashes("test_data/other_manifests/powershell.md5.txt")
+	u, err := LoadUnknownHashes("../test_data/other_manifests/powershell.md5.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -340,7 +341,7 @@ func Test_UnknownHashes_RemoveSet_MD5(t *testing.T) {
 
 func Test_UnknownHashes_RemoveSet_SHA1(t *testing.T) {
 	// GIVEN a populated hash file
-	u, err := LoadUnknownHashes("test_data/other_manifests/powershell.sha1.txt")
+	u, err := LoadUnknownHashes("../test_data/other_manifests/powershell.sha1.txt")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,35 +1,50 @@
 // Copyright (C) 2017 Robert A. Wallis, All Rights Reserved
+
 package main
 
 import (
 	"os"
+	"path"
 	"testing"
 )
 
 func Test_Filter_filterFiles(t *testing.T) {
 	// GIVEN the test folder
-	dirname := "test_data"
+	dirName := "test_data"
 	manifestFilename := "manifest.json"
-	dir, _ := os.Open(dirname)
-	files, _ := dir.Readdir(0)
+	dir, _ := os.Open(dirName)
+	fileChan := make(chan *pathFileInfo)
+	go func() {
+		defer close(fileChan)
+		files, _ := dir.Readdir(0)
+		for f := range files {
+			fileChan <- &pathFileInfo{
+				files[f],
+				path.Join(dirName, files[f].Name()),
+				files[f].Name(),
+			}
+		}
+	}()
+
+	done := make(chan struct{})
+	out := make(chan *pathFileInfo)
 
 	// WHEN the files are filtered for the folder
-	c := make(chan string)
-	go filterFiles(files, manifestFilename, c)
+	go filterFiles(done, fileChan, manifestFilename, out)
 
 	// THEN the first file should be a.txt
-	a := <-c
-	if a != "a.txt" {
+	a := <-out
+	if a.Name() != "a.txt" {
 		t.Fatalf("Expected a.txt got %v", a)
 	}
 
-	b := <-c
-	if b != "b.txt" {
+	b := <-out
+	if b.Name() != "b.txt" {
 		t.Fatalf("Expected b.txt got %v", b)
 	}
 
-	end := <-c
-	if end != "" {
-		t.Fatalf("No more files should have been found, but found %v", end)
+	end := <-out
+	if end != nil {
+		t.Fatalf("No more files should have been found, but found %v", end.Name())
 	}
 }

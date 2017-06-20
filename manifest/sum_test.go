@@ -1,11 +1,12 @@
 // Copyright (C) 2017 Robert A. Wallis, All Rights Reserved
-package main
+
+package manifest
 
 import "testing"
 
 func Test_Sum_Calculate(t *testing.T) {
 	// GIVEN a tested file
-	filename := "test_data/a.txt"
+	filename := "../test_data/a.txt"
 	md5 := "0cc175b9c0f1b6a831c399e269772661"
 	sha1 := "86f7e437faa5a7fce15d1ddcb9eaeaea377667b8"
 

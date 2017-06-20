@@ -6,5 +6,21 @@
 	"b.txt": {
 		"MD5": "92eb5ffee6ae2fec3ad71c777531578f",
 		"SHA1": "e9d71f5ee7c92d6dc9e92ffdad17b8bd49418f98"
+	},
+	"bad_manifests\\bad_b.json": {
+		"MD5": "9b936a280bfc6e1a43a211e79fc2ebd3",
+		"SHA1": "0e004e35c29f8af17af922c255249d1a7df16962"
+	},
+	"bad_manifests\\powershell.extra.md5.txt": {
+		"MD5": "476fc4ae71fa05dc7847497e85f4fc2a",
+		"SHA1": "8dfc0251ce4fa668ec1aed4fe1db350060c2b77c"
+	},
+	"other_manifests\\powershell.md5.txt": {
+		"MD5": "02d6771d983028a9e93f81d2e2769a63",
+		"SHA1": "63f1eef13329e20b827363f05f7f28b944197f8e"
+	},
+	"other_manifests\\powershell.sha1.txt": {
+		"MD5": "24acaa1e89f6ddfd50284f131249d948",
+		"SHA1": "5b5af9cef1683d371257d38c89298a347e5157ff"
 	}
 }
